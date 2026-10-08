@@ -1,23 +1,43 @@
-import React, { useState } from 'react';
-import { Camera, MapPin, Upload, AlertCircle, CheckCircle } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { Camera, MapPin, Upload, AlertCircle, CheckCircle, X } from 'lucide-react';
 
 export default function CitizenDashboard() {
   const [description, setDescription] = useState('');
   const [location, setLocation] = useState('');
+  const [imagePreview, setImagePreview] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
+  const fileInputRef = useRef(null);
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const clearImage = () => {
+    setImagePreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!imagePreview) return alert('Please upload an image of the waste.');
     setIsSubmitting(true);
-    // Simulate API call
+    // Simulate API call to AI service
     setTimeout(() => {
       setIsSubmitting(false);
       setSuccess(true);
       setDescription('');
       setLocation('');
-      setTimeout(() => setSuccess(false), 3000);
-    }, 1500);
+      clearImage();
+      setTimeout(() => setSuccess(false), 4000);
+    }, 2000);
   };
 
   return (
@@ -34,8 +54,8 @@ export default function CitizenDashboard() {
             Report New Issue
           </h2>
           {success && (
-            <div style={{ padding: '16px', background: 'rgba(16, 185, 129, 0.1)', color: 'var(--primary)', borderRadius: 'var(--radius-md)', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <CheckCircle size={20} /> Successfully submitted report!
+            <div className="animate-fade-in" style={{ padding: '16px', background: 'rgba(16, 185, 129, 0.15)', color: 'var(--primary)', borderRadius: 'var(--radius-md)', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px', border: '1px solid var(--primary-light)' }}>
+              <CheckCircle size={20} /> Successfully submitted report to City AI!
             </div>
           )}
           <form onSubmit={handleSubmit}>
@@ -53,16 +73,33 @@ export default function CitizenDashboard() {
             </div>
 
             <div className="input-group">
-              <label className="input-label">Upload Image</label>
-              <div style={{ border: '2px dashed var(--border-color)', borderRadius: 'var(--radius-md)', padding: '40px', textAlign: 'center', cursor: 'pointer', transition: 'var(--transition)' }} onMouseOver={(e) => e.currentTarget.style.borderColor = 'var(--primary)'} onMouseOut={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}>
-                <Camera size={32} style={{ color: 'var(--text-muted)', marginBottom: '12px' }} />
-                <p style={{ fontWeight: 500 }}>Click or drag image to upload</p>
-                <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '4px' }}>PNG, JPG up to 10MB</p>
-              </div>
+              <label className="input-label">Upload Image of Waste</label>
+              
+              {!imagePreview ? (
+                <div 
+                  onClick={() => fileInputRef.current.click()}
+                  style={{ border: '2px dashed var(--border-color)', borderRadius: 'var(--radius-md)', padding: '40px', textAlign: 'center', cursor: 'pointer', transition: 'var(--transition)', background: 'var(--surface-glass)' }} 
+                  onMouseOver={(e) => e.currentTarget.style.borderColor = 'var(--primary)'} 
+                  onMouseOut={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}
+                >
+                  <Camera size={32} style={{ color: 'var(--text-muted)', marginBottom: '12px' }} />
+                  <p style={{ fontWeight: 500 }}>Click to select an image from your device</p>
+                  <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '4px' }}>PNG, JPG acceptable format</p>
+                </div>
+              ) : (
+                <div style={{ position: 'relative', borderRadius: 'var(--radius-md)', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
+                  <img src={imagePreview} alt="Preview" style={{ width: '100%', height: '200px', objectFit: 'cover', display: 'block' }} />
+                  <button type="button" onClick={clearImage} className="btn" style={{ position: 'absolute', top: '8px', right: '8px', background: 'var(--surface)', color: 'var(--text-main)', padding: '6px', borderRadius: '50%' }}>
+                    <X size={16} />
+                  </button>
+                </div>
+              )}
+              {/* Hidden genuine file input */}
+              <input type="file" ref={fileInputRef} accept="image/png, image/jpeg" style={{ display: 'none' }} onChange={handleImageUpload} />
             </div>
 
-            <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '14px' }} disabled={isSubmitting}>
-              {isSubmitting ? 'Analyzing Image...' : <><Upload size={20} /> Submit Report</>}
+            <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '14px', marginTop: '8px' }} disabled={isSubmitting || !imagePreview}>
+              {isSubmitting ? 'Analyzing AI Image...' : <><Upload size={20} /> Submit Report</>}
             </button>
           </form>
         </div>
@@ -72,7 +109,7 @@ export default function CitizenDashboard() {
             <h2>Your Recent Reports</h2>
             <div style={{ marginTop: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
               
-              <div style={{ padding: '16px', background: 'var(--surface)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ padding: '16px', background: 'var(--surface-glass)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
                   <h4 style={{ marginBottom: '4px' }}>Downtown Market Square</h4>
                   <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Illegal dumping • Oct 5, 2026</p>
@@ -80,10 +117,10 @@ export default function CitizenDashboard() {
                 <span className="badge badge-success">CLEANED</span>
               </div>
 
-              <div style={{ padding: '16px', background: 'var(--surface)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ padding: '16px', background: 'var(--surface-glass)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
                   <h4 style={{ marginBottom: '4px' }}>Riverside Park Walkway</h4>
-                  <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Plastic waste accumulation • Oct 7, 2026</p>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Plastic waste • Oct 7, 2026</p>
                 </div>
                 <span className="badge badge-warning">IN PROGRESS</span>
               </div>
