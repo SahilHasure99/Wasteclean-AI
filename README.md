@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <div align="center">
 
 # 🌿 WasteWise AI
@@ -367,3 +368,7 @@ This project is licensed under the **MIT License** — see the [LICENSE](LICENSE
 [🐛 Report Bug](https://github.com/SahilHasure99/Wasteclean-AI/issues) · [✨ Request Feature](https://github.com/SahilHasure99/Wasteclean-AI/issues) · [📖 Documentation](https://github.com/SahilHasure99/Wasteclean-AI/wiki)
 
 </div>
+=======
+# Wasteclean-AI
+this is for hackthon project 
+>>>>>>> origin/main
